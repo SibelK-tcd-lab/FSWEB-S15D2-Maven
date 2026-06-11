@@ -16,8 +16,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-
 public class ResultAnalyzer implements TestWatcher, AfterAllCallback {
+
     private List<TestResultStatus> testResultsStatus = new ArrayList<>();
     private static final String taskId = "149";
 
@@ -47,20 +47,32 @@ public class ResultAnalyzer implements TestWatcher, AfterAllCallback {
 
     @Override
     public void afterAll(ExtensionContext context) throws Exception {
+
         Map<TestResultStatus, Long> summary = testResultsStatus.stream()
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
-        // (summary.get(TestResultStatus.SUCCESSFUL) + summary.get(TestResultStatus.FAILED)) / summary.get(TestResultStatus.SUCCESSFUL);
-        long success = summary.get(TestResultStatus.SUCCESSFUL) != null ? summary.get(TestResultStatus.SUCCESSFUL) : 0;
-        long failure = summary.get(TestResultStatus.FAILED) != null ? summary.get(TestResultStatus.FAILED) : 0;
+        long success = summary.get(TestResultStatus.SUCCESSFUL) != null
+                ? summary.get(TestResultStatus.SUCCESSFUL)
+                : 0;
 
-        double score = (double) success / (success + failure);
+        long failure = summary.get(TestResultStatus.FAILED) != null
+                ? summary.get(TestResultStatus.FAILED)
+                : 0;
+
+        long total = success + failure;
+
+        double score = 0.0;
+        if (total != 0) {
+            score = (double) success / total;
+        }
+
         String userId = "307446";
 
         JSONObject json = new JSONObject();
         json.put("score", score);
         json.put("taskId", taskId);
         json.put("userId", userId);
+
         sendTestResult(json.toString());
     }
 
@@ -78,6 +90,4 @@ public class ResultAnalyzer implements TestWatcher, AfterAllCallback {
             httpClient.close();
         }
     }
-
-
 }

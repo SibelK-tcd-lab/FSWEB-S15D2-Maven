@@ -4,6 +4,7 @@ import org.example.entity.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.lang.reflect.Field;
 import java.util.HashSet;
@@ -11,9 +12,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 public class MainTest {
 
@@ -21,18 +23,17 @@ public class MainTest {
     Task task2;
     Task task3;
     TaskData taskData;
+
     Set<Task> taskSet1;
     Set<Task> taskSet2;
     Set<Task> taskSet3;
 
     @BeforeEach
     void setUp() {
-        // Sıralama Hatası Düzeltildi: project, description, assignee, priority, status
         task1 = new Task("Java Collections", "Write List Interface", "Bob", Priority.HIGH, Status.IN_QUEUE);
         task2 = new Task("Java Collections", "Write Set Interface", "Ann", Priority.MED, Status.ASSIGNED);
         task3 = new Task("Java Collections", "Write Map Interface", "Bob", Priority.HIGH, Status.IN_QUEUE);
 
-        // Parantez uyuşmazlığı ve yanlış setlere ekleme hataları düzeltildi
         taskSet1 = new HashSet<>();
         taskSet1.add(task1);
 
@@ -54,16 +55,16 @@ public class MainTest {
         Field priorityFields = task1.getClass().getDeclaredField("priority");
         Field statusFields = task1.getClass().getDeclaredField("status");
 
-        assertEquals(assigneeFields.getModifiers(), 2);
-        assertEquals(descriptionsFields.getModifiers(), 2);
-        assertEquals(projectFields.getModifiers(), 2);
-        assertEquals(priorityFields.getModifiers(), 2);
-        assertEquals(statusFields.getModifiers(), 2);
+        assertEquals(2, assigneeFields.getModifiers());
+        assertEquals(2, descriptionsFields.getModifiers());
+        assertEquals(2, projectFields.getModifiers());
+        assertEquals(2, priorityFields.getModifiers());
+        assertEquals(2, statusFields.getModifiers());
     }
 
     @DisplayName("Task sınıfı doğru typelara sahip mi")
     @Test
-    public void testTaskTypes() throws NoSuchFieldException {
+    public void testTaskTypes() {
         assertThat(task1.getAssignee(), instanceOf(String.class));
         assertThat(task1.getDescription(), instanceOf(String.class));
         assertThat(task1.getPriority(), instanceOf(Priority.class));
@@ -79,10 +80,10 @@ public class MainTest {
         Field carolTasksField = taskData.getClass().getDeclaredField("carolsTasks");
         Field unassignedTasksField = taskData.getClass().getDeclaredField("unassignedTasks");
 
-        assertEquals(annTasksField.getModifiers(), 2);
-        assertEquals(bobTasksField.getModifiers(), 2);
-        assertEquals(carolTasksField.getModifiers(), 2);
-        assertEquals(unassignedTasksField.getModifiers(), 2);
+        assertEquals(2, annTasksField.getModifiers());
+        assertEquals(2, bobTasksField.getModifiers());
+        assertEquals(2, carolTasksField.getModifiers());
+        assertEquals(2, unassignedTasksField.getModifiers());
     }
 
     @DisplayName("TaskData getTasks method doğru çalışıyor mu ?")
@@ -96,61 +97,63 @@ public class MainTest {
     @DisplayName("TaskData getUnion method doğru çalışıyor mu ?")
     @Test
     public void testGetUnionMethod() {
-        Set<Task> taskSet = new HashSet<>();
-        taskSet.add(task1);
-        Set<Task> taskSet2 = new HashSet<>();
-        taskSet.add(task2);
+        Set<Task> setA = new HashSet<>();
+        setA.add(task1);
 
-        // TaskData içindeki getUnion metodunun List.of() parametre yapısıyla eşitlendi
-        Set<Task> totals = taskData.getUnion(List.of(taskSet, taskSet2));
-        assertEquals(totals.size(), 2);
+        Set<Task> setB = new HashSet<>();
+        setB.add(task2);
+
+        Set<Task> totals = taskData.getUnion(List.of(setA, setB));
+        assertEquals(2, totals.size());
     }
 
     @DisplayName("TaskData getIntersect() method doğru çalışıyor mu ?")
     @Test
-    public void testGetIntersectMethod() throws NoSuchFieldException {
-        Set<Task> taskSet = new HashSet<>();
-        taskSet.add(task1);
-        taskSet.add(task2);
-        Set<Task> taskSet2 = new HashSet<>();
-        taskSet2.add(task2);
+    public void testGetIntersectMethod() {
+        Set<Task> setA = new HashSet<>();
+        setA.add(task1);
+        setA.add(task2);
 
-        // Metod ismi getIntersect olarak düzeltildi
-        Set<Task> intersections = taskData.getIntersect(taskSet, taskSet2);
+        Set<Task> setB = new HashSet<>();
+        setB.add(task2);
 
-        for(Task task: intersections){
+        Set<Task> intersections = taskData.getIntersect(setA, setB);
+
+        for (Task task : intersections) {
             assertEquals(task, task2);
         }
 
-        assertEquals(intersections.size(), 1);
+        assertEquals(1, intersections.size());
     }
 
     @DisplayName("TaskData getDifference() method doğru çalışıyor mu ?")
     @Test
-    public void testGetDifferenceMethod() throws NoSuchFieldException {
-        Set<Task> taskSet = new HashSet<>();
-        taskSet.add(task1);
-        taskSet.add(task2);
-        Set<Task> taskSet2 = new HashSet<>();
-        taskSet2.add(task2);
+    public void testGetDifferenceMethod() {
+        Set<Task> setA = new HashSet<>();
+        setA.add(task1);
+        setA.add(task2);
 
-        // Metod ismi getDifference olarak düzeltildi
-        Set<Task> differences = taskData.getDifference(taskSet, taskSet2);
+        Set<Task> setB = new HashSet<>();
+        setB.add(task2);
 
-        for(Task task: differences){
+        Set<Task> differences = taskData.getDifference(setA, setB);
+
+        for (Task task : differences) {
             assertEquals(task, task1);
         }
 
-        assertEquals(differences.size(), 1);
+        assertEquals(1, differences.size());
     }
 
     @DisplayName("findUniqueWords doğru çalışıyor mu ?")
     @Test
     public void testFindUniqueWordsMethod() {
+        assertEquals(70, org.example.entity.StringSet.findUniqueWords().size());
 
-        assertEquals(org.example.entity.StringSet.findUniqueWords().size(), 70);
+        List<String> results = org.example.entity.StringSet.findUniqueWords()
+                .stream()
+                .collect(Collectors.toList());
 
-        List<String> results = org.example.entity.StringSet.findUniqueWords().stream().collect(Collectors.toList());
-        assertEquals(results.get(0), "a");
+        assertEquals("a", results.get(0));
     }
 }
